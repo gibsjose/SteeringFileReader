@@ -42,7 +42,7 @@ private:
 	bool dividedByBinWidth;
 	
 	//[GRID]
-	std::string gridPath;
+	std::string gridFilepath;
 	std::string generatorID;
 	std::string nTupleID;
 	std::string lowestOrder;
@@ -88,8 +88,8 @@ public:
 		return this->dividedByBinWidth;
 	}
 	
-	const std::string & GetGridPath(void) const {
-		return this->gridPath;
+	const std::string & GetGridFilepath(void) const {
+		return this->gridFilepath;
 	}
 	
 	const std::string & GetGeneratorID(void) const {

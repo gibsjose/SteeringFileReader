@@ -51,6 +51,25 @@ public:
 		return (int)style;
 	}
 	
+	bool Contains(int mask) {
+		//Invalid mask... Does not contain data, reference, or convolute
+		if(!(mask & (OS_DATA | OS_REFERENCE | OS_CONVOLUTE))) {
+			return false;
+		}
+
+		if(((style & mask) == OS_DATA) && (this->IsValid())) {
+			return true;
+		} else if(((style & mask) == OS_REFERENCE) && (this->IsValid())) {
+			return true;
+		} else if(((style & mask) == OS_CONVOLUTE) && (this->IsValid())) {
+			return true;
+		} else {
+			return false;
+		}
+
+		return false;
+	}
+
 	bool ContainsData(void) {
 		if((style & OS_DATA) && this->IsValid()) {
 			return true;

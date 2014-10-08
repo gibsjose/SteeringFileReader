@@ -51,40 +51,39 @@ private:
 	unsigned int numberOfFrames;
 
 	//[GEN]
-	bool debug;
-	std::string dataDirectory;
-	std::string gridDirectory;
+	bool debug;						//Flag to indicate debug mode
+	std::string pdfDirectory;		//Directory prepended to PDF steering files
+	std::string dataDirectory;		//Directory prepended to data steering files
+	std::string gridDirectory;		//Directory prepended to grid steering files
 	
 	//[GRAPH]
-	bool plotBand;
-	bool plotErrorTicks;
-	bool plotMarker;
-	bool plotStaggered;
-	double xLegend;
-	double yLegend;
-	std::string ratioTitle;
-	SPXRatioStyle ratioStyle;
-	SPXOverlayStyle overlayStyle;
-	SPXDisplayStyle displayStyle;
-	double yOverlayMin;
-	double yOverlayMax;
-	double yRatioMin;
-	double yRatioMax;
+	bool plotBand;					//Flag to indicate that error bands should be plotted
+	bool plotErrorTicks;			//Flag to indicate that tick marks should be used at the end of error bars
+	bool plotMarker;				//Flag to indicate that data point markers should be plotted
+	bool plotStaggered;				//Flag to indicate that points should be staggered horizontally for readability
+	bool labelSqrtS;				//Flag to indicate that the Sqrt(s) value should be shown in the legend
+	double xLegend;					//X Position of the legend, based on top-right corner
+	double yLegend;					//Y Position of the legend, based on top-right corner
+	std::string ratioTitle;			//Force Ratio Section Y-Axis Label to a certain value
+	SPXRatioStyle ratioStyle;		//What to plot in the ratio section
+	SPXOverlayStyle overlayStyle;	//What to plot in the overlay section
+	SPXDisplayStyle displayStyle;	//What to plot: overlay AND/OR ratio
+	double yOverlayMin;				//Force Y-Axis minimum for overlay section
+	double yOverlayMax;				//Force Y-Axis maximum for overlay section
+	double yRatioMin;				//Force Y-Axis minimum for ratio section
+	double yRatioMax;				//Force Y-Axis maximum for ratio section
 	
 	//[PDF]
-	//@TODO: At some point just get rid of <...>Filepaths and just use the .GetFilepath method
-	//			of the SPXPDFSteeringFile class instead...
-	std::vector<std::string> pdfSteeringFilepaths;
-	std::vector<SPXPDFSteeringFile> pdfSteeringFiles;
-	int pdfFillStyle;
-	int pdfFillColor;
-	int pdfMarkerStyle;
-	SPXPDFBandType pdfBandType;
-	SPXPDFErrorType pdfErrorType;
-	SPXPDFErrorSize pdfErrorSize;
+	std::vector<SPXPDFSteeringFile> pdfSteeringFiles;	//PDF Steering Files
+	int pdfFillStyle;				//Override PDF fill style
+	int pdfFillColor;				//Override PDF fill color
+	int pdfMarkerStyle;				//Override PDF marker style
+	SPXPDFBandType pdfBandType;		//Override PDF band type
+	SPXPDFErrorType pdfErrorType;	//Override PDF error type
+	SPXPDFErrorSize pdfErrorSize;	//Override PDF error size
 	
 	//[FRAME_n]
-	std::vector<SPXFrameOptions> frameOptions;
+	std::vector<SPXFrameOptions> frameOptions;			//Options for each Frame to be plotted
 	
 	void SetDefaults(void);
 	unsigned int ParseNumberOfFrames(void);
@@ -107,7 +106,7 @@ public:
 		this->filename = filename;		
 	}
 	
-	std::string GetFilename(void) const {
+	const std::string & GetFilename(void) const {
 		return this->filename;
 	}
 	
@@ -119,11 +118,15 @@ public:
 		return this->debug;
 	}
 	
-	std::string GetDataDirectory(void) const {
+	const std::string & GetPDFDirectory(void) const {
+		return this->pdfDirectory;
+	}
+
+	const std::string & GetDataDirectory(void) const {
 		return this->dataDirectory;
 	}
 	
-	std::string GetGridDirectory(void) const {
+	const std::string & GetGridDirectory(void) const {
 		return this->gridDirectory;
 	}
 	
@@ -151,7 +154,7 @@ public:
 		return this->yLegend;
 	}
 	
-	std::string GetRatioTitle(void) const {
+	const std::string & GetRatioTitle(void) const {
 		return this->ratioTitle;
 	}
 	
@@ -183,23 +186,14 @@ public:
 		return this->yRatioMax;
 	}
 	
-	unsigned int GetNumberOfPDFSteeringFilepaths(void) const {
-		return this->pdfSteeringFilepaths.size();
-	}
-	
-	const std::vector<std::string> & GetPDFSteeringFilepaths(void) const {
-		return this->pdfSteeringFilepaths;
-	}
-	
-	const std::string & GetPDFSteeringFilepath(unsigned int index) const {
-		if((index + 1) > pdfSteeringFilepaths.size()) {
-			int top = pdfSteeringFilepaths.size() - 1;
-			throw SPXOutOfRangeException(top, index, "SPXSteeringFile::GetPDFSteeringFilepath: Index out of range");
+	const std::vector<std::string> GetPDFSteeringFilepaths(void) const {
+		std::vector<std::string> tmpVector;
+		for(int i = 0; i < pdfSteeringFiles.size(); i++) {
+			tmpVector.push_back(pdfSteeringFiles.at(i).GetFilename());
 		}
-		
-		return pdfSteeringFilepaths.at(index);
+		return tmpVector;
 	}
-	
+
 	unsigned int GetNumberOfPDFSteeringFiles(void) const {
 		return this->pdfSteeringFiles.size();
 	}
@@ -259,7 +253,7 @@ public:
 		return frameOptions.at(index);
 	}
 	
-	//@TODO: Implement: Allow 2D indexing of Data/Grid Steering files
+	//@TODO Implement: Allow 2D indexing of Data/Grid Steering files
 	const SPXDataSteeringFile & GetDataSteeringFile(unsigned int frameOptionsIndex, unsigned int frameOptionsInstanceIndex) const {
 		//Error check: check both indices against array sizes and issue SPXOutOfRangeExceptions if out of range before returning steering file
 	}

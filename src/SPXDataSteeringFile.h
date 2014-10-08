@@ -20,10 +20,7 @@
 
 #include "INIReader.h"
 
-typedef enum SPXDataFormat {
-	Spectrum = 0,
-	HERAPDF = 1
-} SPXDataFormat;
+#include "SPXDataFormat.h"
 
 class SPXDataSteeringFile {
 
@@ -41,33 +38,31 @@ private:
 	//[DESC]
 	std::string name;				//Name of Steering Data
 	unsigned long year;				//Year
+	std::string experiment;			//Experiment
 	std::string reaction;			//Reaction name
 
 	//[GRAPH]
-	bool plotSqrts;					//@TODO RENAME 'plotSqrts' --> ???
-	double sqrts;					//@TODO RENAME 'sqrts' --> ???
-	std::string title;				//Data graph title
+	double sqrtS;					//Sqrt(s) value for dataset
+	std::string legendLabel; 		//Legend label describing the data set
 	std::string xLabel;				//X-Axis label
 	std::string yLabel;				//Y-Axis label
 	std::string xUnits;				//X-Axis units
 	std::string yUnits;				//Y-Axis units
 	double xScale;					//X-Axis scale
 	double yScale;					//Y-Axis scale
-	bool frameXLog;					//Plot the X-axis as logarithmic
-	bool frameYLog;					//Plot the Y-Axis as logarithmic
-	double frameXMin;				//X-Axis minimum frame
-	double frameYMin;				//Y-Axis minimum frame
-	bool dividedByBinWidth;			//Whether data has been divided by the bin width
-	std::string legendLabel 		//Legend label describing the data set
+	bool frameXLog;					//Plot the X-axis as logarithmic @TODO Change name (x_log): what do these have to do with frame?
+	bool frameYLog;					//Plot the Y-Axis as logarithmic @TODO Should these be in the Steering File instead? What if one data file is log and another isn't?
+	//double frameXMin;				//X-Axis minimum frame @TODO What does it have to do with frame?
+	//double frameYMin;				//Y-Axis minimum frame
 	std::string jetAlgorithmLabel;	//Jet algorithm label
 	int jetAlgorithmNumber;			//Jet algorithm number
 
 	//[DATA]
 	SPXDataFormat dataFormat;		//The format of the data: Current supported formats are: Spectrum, HERAPDF
-	std::string dataFilename;		//The data filename
-	bool errorInPercent;			//Whether the errors in the data file are given in percents
-	bool tablePlusMinus;			//@TODO RENAME 'tablePlusMinus' --> ???
-	//bool systStstTot				//@TODO RENAME 'systStstTot' --> ??????????????????????
+	std::string dataFilepath;		//The data filepath
+	bool dividedByBinWidth;			//Flag to indicate that data has been divided by the bin width
+	bool normalizedToTotalSigma;	//Flag to indicate that cross section data is normalized to the total cross section
+	bool errorInPercent;			//Flag to indicate the errors in the data file are given in percents
 	
 	void SetDefaults(void);
 
@@ -98,16 +93,12 @@ public:
 		return reaction;
 	}
 	
-	bool ShouldPlotSqrts(void) const {
-		return plotSqrts;
+	double GetSqrtS(void) const {
+		return sqrtS;
 	}
-	
-	double GetSqrts(void) const {
-		return sqrts;
-	}
-	
-	const std::string & GetTitle(void) const {
-		return title;
+
+	const std::string & GetLegendLabel(void) const {
+		return legendLabel;
 	}
 	
 	const std::string & GetXLabel(void) const {
@@ -134,6 +125,7 @@ public:
 		return yScale;
 	}
 	
+	/*
 	double GetFrameXMin(void) const {
 		return frameXMin;
 	}
@@ -141,19 +133,32 @@ public:
 	double GetFrameYMin(void) const {
 		return frameYMin;
 	}
+	*/
+
+	const std::string & GetJetAlgorithmLabel(void) const {
+		return jetAlgorithmLabel;
+	}
+
+	int GetJetAlgorithmNumber(void) const {
+		return jetAlgorithmNumber;
+	}
 	
+	SPXDataFormat GetDataFormat(void) const {
+		return dataFormat;
+	}
+	
+	const std::string GetDataFile(void) const {
+		return dataFilepath;
+	}
+
 	bool IsDividedByBinWidth(void) const {
 		return dividedByBinWidth;
 	}
 	
-	SPXDataType GetDataType(void) const {
-		return dataType;
+	bool IsNormalizedToTotalSigma(void) const {
+		return normalizedToTotalSigma;
 	}
-	
-	const std::string GetDataFilename(void) const {
-		return dataFilename;
-	}
-	
+
 	bool IsErrorInPercent(void) const {
 		return errorInPercent;
 	}

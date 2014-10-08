@@ -50,6 +50,23 @@ public:
 		return (int)style;
 	}
 	
+	bool Contains(int mask) {
+		//Invalid mask... Does not contain data, reference, or convolute
+		if(!(mask & (DS_OVERLAY | DS_RATIO))) {
+			return false;
+		}
+
+		if(((style & mask) == DS_OVERLAY) && (this->IsValid())) {
+			return true;
+		} else if(((style & mask) == DS_RATIO) && (this->IsValid())) {
+			return true;
+		} else {
+			return false;
+		}
+
+		return false;
+	}
+
 	bool ContainsOverlay(void) {
 		if((style & DS_OVERLAY) && this->IsValid()) {
 			return true;

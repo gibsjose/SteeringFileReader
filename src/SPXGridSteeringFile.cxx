@@ -35,8 +35,8 @@ void SPXGridSteeringFile::SetDefaults(void) {
 	dividedByBinWidth = false;
 	if(debug) std::cout << cn << mn << "dividedByBinWidth set to default: \"false\"" << std::endl;
 	
-	gridPath.clear();
-	if(debug) std::cout << cn << mn << "gridPath set to default: \" \"" << std::endl;
+	gridFilepath.clear();
+	if(debug) std::cout << cn << mn << "gridFilepath set to default: \" \"" << std::endl;
 	
 	generatorID.clear();
 	if(debug) std::cout << cn << mn << "generatorID set to default: \" \"" << std::endl;
@@ -58,9 +58,9 @@ void SPXGridSteeringFile::Print(void) {
 	std::cout << "\t Graphing Options [GRAPH]" << std::endl;
 	std::cout << "\t\t X Units: " << xUnits << std::endl;
 	std::cout << "\t\t Y Units: " << yUnits << std::endl;
-	std::cout << "\t\t Reference Histogram Divided by Bin Width? " << (dividedByBinWidth ? "YES" : "NO") << std::endl;
+	std::cout << "\t\t Reference Histogram Divided by Bin Width? " << (dividedByBinWidth ? "YES" : "NO") << std::endl << std::endl;
 	std::cout << "\t Grid Options [GRID]" << std::endl;
-	std::cout << "\t\t Grid Path: " << gridPath << std::endl;
+	std::cout << "\t\t Grid File: " << gridFilepath << std::endl;
 	std::cout << "\t\t Generator ID: " << generatorID << std::endl;
 	std::cout << "\t\t NTuple ID: " << nTupleID << std::endl;
 	std::cout << "\t\t Lowest Order: " << lowestOrder << std::endl << std::endl;
@@ -117,11 +117,11 @@ void SPXGridSteeringFile::Parse(void) {
 	if(debug) std::cout << cn << mn << "Divided By Bin Width set to: " << (dividedByBinWidth ? "ON" : "OFF") << std::endl;
 	
 	//Grid Options [GRID]
-	gridPath = reader->Get("GRID", "grid_path", "EMPTY");
-	if(!gridPath.compare("EMPTY")) {
-		throw SPXINIParseException("GRAPH", "grid_path", "You MUST specify the grid_path");
+	gridFilepath = reader->Get("GRID", "grid_file", "EMPTY");
+	if(!gridFilepath.compare("EMPTY")) {
+		throw SPXINIParseException("GRAPH", "grid_file", "You MUST specify the grid_file");
 	} else {
-		if(debug) std::cout << cn << mn << "Successfully read Grid Path: " << gridPath << std::endl;
+		if(debug) std::cout << cn << mn << "Successfully read Grid Filepath: " << gridFilepath << std::endl;
 	}
 	
 	generatorID = reader->Get("GRID", "generator_id", "EMPTY");

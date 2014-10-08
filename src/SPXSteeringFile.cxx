@@ -26,6 +26,9 @@ void SPXSteeringFile::SetDefaults(void) {
 	numberOfFrames = 0;
 	if(debug) std::cout << cn << mn << "numberOfFrames set to default: \"0\"" << std::endl;
 	
+	pdfDirectory = ".";
+	if(debug) std::cout << cn << mn << "pdfDirectory set to default: \".\"" << std::endl;
+
 	dataDirectory = ".";
 	if(debug) std::cout << cn << mn << "dataDirectory set to default: \".\"" << std::endl;
 	
@@ -43,6 +46,9 @@ void SPXSteeringFile::SetDefaults(void) {
 	
 	plotStaggered = false;
 	if(debug) std::cout << cn << mn << "plotStaggered set to default: \"false\"" << std::endl;
+	
+	labelSqrtS = false;
+	if(debug) std::cout << cn << mn << "labelSqrtS set to default: \"false\"" << std::endl;
 	
 	xLegend = 0.9;
 	if(debug) std::cout << cn << mn << "xLegend set to default: \"0.9\"" << std::endl;
@@ -101,6 +107,7 @@ void SPXSteeringFile::Print(void) {
 	std::cout << "Steering File: " << filename << std::endl;
 	std::cout << "\t General Options [GEN]" << std::endl;
 	std::cout << "\t\t Debug is " << (debug ? "ON" : "OFF") << std::endl;
+	std::cout << "\t\t PDF Directory: " << pdfDirectory << std::endl;
 	std::cout << "\t\t Data Directory: " << dataDirectory << std::endl;
 	std::cout << "\t\t Grid Directory: " << gridDirectory << std::endl << std::endl;
 	std::cout << "\t Graphing Options [GRAPH]" << std::endl;
@@ -108,6 +115,7 @@ void SPXSteeringFile::Print(void) {
 	std::cout << "\t\t Plot Error Ticks is: " << (plotErrorTicks ? "ON" : "OFF") << std::endl;
 	std::cout << "\t\t Plot Marker is: " << (plotMarker ? "ON" : "OFF") << std::endl;
 	std::cout << "\t\t Plot Staggered is: " << (plotStaggered ? "ON" : "OFF") << std::endl;
+	std::cout << "\t\t Label Sqrt(s) on Leggend: " << (labelSqrtS ? "YES" : "NO") << std::endl;
 	std::cout << "\t\t X Legend: " << xLegend << std::endl;
 	std::cout << "\t\t Y Legend: " << yLegend << std::endl;
 	std::cout << "\t\t Ratio Title: " << ratioTitle << std::endl;
@@ -119,7 +127,8 @@ void SPXSteeringFile::Print(void) {
 	std::cout << "\t\t Y Ratio Min: " << yRatioMin << std::endl;
 	std::cout << "\t\t Y Ratio Max: " << yRatioMax << std::endl << std::endl;
 	std::cout << "\t PDF Options [PDF]" << std::endl;
-	std::cout << "\t\t PDF Steering Files: " << SPXUtilities::VectorToCommaSeparatedList(pdfSteeringFilepaths) << std::endl;
+	std::vector<std::string> tmpVector = this->GetPDFSteeringFilepaths();
+	std::cout << "\t\t PDF Steering Files: " << SPXUtilities::VectorToCommaSeparatedList(tmpVector) << std::endl;
 	std::cout << "\t\t PDF Fill Style: " << (pdfFillStyle == STYLE_EMPTY ? "UNSET: " : "") << pdfFillStyle << std::endl;
 	std::cout << "\t\t PDF Fill Color: " << (pdfFillColor == COLOR_EMPTY ? "UNSET: " : "") << pdfFillColor << std::endl;
 	std::cout << "\t\t PDF Marker Style: " << (pdfMarkerStyle == STYLE_EMPTY ? "UNSET: " : "") << pdfMarkerStyle << std::endl;
@@ -142,7 +151,7 @@ void SPXSteeringFile::Print(void) {
 			} catch(const SPXException &e) {
 				std::cerr << e.what() << std::endl;
 				
-				//@TODO: An SPXOutOfRangeException occurred here... what do I do now?
+				//@TODO An SPXOutOfRangeException occurred here... what do I do now?
 			}
 			std::cout << "\t\t\t Data Steering File " << j << ": " << tmp.dataSteeringFile.GetFilename() << std::endl;
 			std::cout << "\t\t\t Grid Steering File " << j << ": " << tmp.gridSteeringFile.GetFilename() << std::endl;
@@ -151,17 +160,7 @@ void SPXSteeringFile::Print(void) {
 			std::cout << "\t\t\t Reference Line Style " << j << ": " << tmp.refLineStyle << std::endl;
 			std::cout << "\t\t\t Reference Line Color " << j << ": " << tmp.refLineColor << std::endl << std::endl;
 		}
-	}
-	
-	//@TODO Decide whether to print here, or let the user call PrintXXXXSteeringFiles() ???
-	
-	//Print the PDF Steering Files
-	//PrintPDFSteeringFiles();
-	
-	//Print the Data and Grid Steering Files
-	//PrintDataSteeringFiles();
-	//PrintGridSteeringFiles();
-			
+	}			
 }
 
 unsigned int SPXSteeringFile::ParseNumberOfFrames(void) {
@@ -412,6 +411,7 @@ void SPXSteeringFile::Parse(void) {
 	//Set Defaults
 	this->SetDefaults();
 	
+	pdfDirectory = reader->Get("GEN", "pdf_directory", pdfDirectory);
 	dataDirectory = reader->Get("GEN", "data_directory", dataDirectory);
 	gridDirectory = reader->Get("GEN", "grid_directory", gridDirectory);
 	
@@ -432,6 +432,7 @@ void SPXSteeringFile::Parse(void) {
 	plotErrorTicks = reader->GetBoolean("GRAPH", "plot_error_ticks", plotErrorTicks);
 	plotMarker = reader->GetBoolean("GRAPH", "plot_marker", plotMarker);
 	plotStaggered = reader->GetBoolean("GRAPH", "plot_staggered", plotStaggered);
+	labelSqrtS = reader->GetBoolean("GRAPH", "label_sqrt_s", labelSqrtS);
 	xLegend = reader->GetReal("GRAPH", "x_legend", xLegend);
 	yLegend = reader->GetReal("GRAPH", "y_legend", xLegend);
 	ratioTitle = reader->Get("GRAPH", "ratio_title", ratioTitle);
@@ -493,9 +494,31 @@ void SPXSteeringFile::Parse(void) {
 	yRatioMax = reader->GetReal("GRAPH", "y_ratio_max", yRatioMax);
 	
 	//PDF Options [PDF]
+
+	//Parse PDF Steering Filepaths
 	tmp = reader->Get("PDF", "pdf_steering_files", "EMPTY");
-	if(tmp.compare("EMPTY") != 0){
-		pdfSteeringFilepaths = SPXUtilities::CommaSeparatedListToVector(tmp);
+	if(!tmp.compare("EMPTY")){
+		//Required if Overlay -> Convolute is plotted
+		if(displayStyle.ContainsOverlay() && overlayStyle.ContainsConvolute()) {
+			throw SPXINIParseException("PDF", "pdf_steering_files", "You MUST specify at least one PDF Steering File if Overlay -> Convolute is plotted");
+		} else {
+			if(debug) std::cout << cn << mn << "No PDF Steering Files were specified" << std::endl;
+		}
+	} else {
+		std::vector<std::string> tmpVector = SPXUtilities::CommaSeparatedListToVector(tmp);
+
+		//Prepend PDF directory onto all PDF steering files
+		for(int i = 0; i < tmpVector.size(); i++) {
+			if(debug) std::cout << cn << mn << "Prepending: \"" << pdfDirectory << "\" to \"" << tmpVector[i] << "\"" << std::endl;
+			tmpVector[i] = pdfDirectory + "/" + tmpVector[i];
+			if(debug) std::cout << cn << mn << "Now: " << tmpVector[i] << std::endl;
+
+			//Create a PDF steering file with the full filepath
+			SPXPDFSteeringFile pdfSteeringFile = SPXPDFSteeringFile(tmpVector[i]);
+
+			//Add the PDF steering file to the vector
+			pdfSteeringFiles.push_back(pdfSteeringFile);
+		}
 	}
 	
 	pdfFillStyle = reader->GetInteger("PDF", "pdf_fill_style", pdfFillStyle);
@@ -579,10 +602,11 @@ void SPXSteeringFile::PrintPDFSteeringFiles(void) {
 void SPXSteeringFile::ParsePDFSteeringFiles(void) {
 	std::string mn = "ParsePDFSteeringFiles: ";
 	
-	//Create a PDFSteeringFile for each entry and store in vector
-	for(int i = 0; i < pdfSteeringFilepaths.size(); i++) {
-		SPXPDFSteeringFile pdfSteeringFile = SPXPDFSteeringFile(pdfSteeringFilepaths.at(i));
-		
+	//Parse each PDF Steering File in the vector
+	for(int i = 0; i < pdfSteeringFiles.size(); i++) {
+
+		SPXPDFSteeringFile & pdfSteeringFile = pdfSteeringFiles.at(i);
+
 		//Attempt to parse the PDF steering file
 		try {
 			pdfSteeringFile.Parse();
@@ -590,12 +614,9 @@ void SPXSteeringFile::ParsePDFSteeringFiles(void) {
 			std::cerr << e.what() << std::endl;
 			
 			std::ostringstream oss;
-			oss << "Unable to parse the PDF Steering File: " << pdfSteeringFilepaths.at(i) << ": Aborting further parsing of remaining " << pdfSteeringFilepaths.size() - i << " files";
+			oss << "Unable to parse the PDF Steering File: " << pdfSteeringFile.GetFilename() << ": Aborting further parsing of remaining " << pdfSteeringFiles.size() - i << " files";
 			throw SPXParseException(oss.str());
 		}
-		
-		//Add the PDF Steering File to the vector
-		pdfSteeringFiles.push_back(pdfSteeringFile);
 	}
 }
 
