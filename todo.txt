@@ -1,4 +1,4 @@
-@TODO Learn Markdown and create README.md for SteeringFileReader
+@TODO Learn Markdown and create README.md for SteeringFileReader/Spectrum: https://guides.github.com/features/mastering-markdown/
 @TODO Clean up todo python script
 @TODO Allow todo.py to accommodate multi-line comments (like SPXSteeringFile.h: 75)
 @TODO Perhaps add a way to specify a line number and filename and remove the @TODO statement at that line
